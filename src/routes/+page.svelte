@@ -51,7 +51,7 @@
 
 <section>
 	<h1>Dawnie Assist</h1>
-		<div>
+		<div class="input-box">
 			<label for="video">Webcam url</label>
 			<input class="url-input" type="text" placeholder="Enter a url" on:change={handleUrlChange} />
 		</div>
