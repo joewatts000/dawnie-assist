@@ -4,30 +4,97 @@
 	--font-body: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
 		Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 	--font-mono: 'Fira Mono', monospace;
+
 	--color-bg-0: rgb(202, 216, 228);
-	--color-bg-1: hsl(209, 36%, 86%);
+	--color-bg-1: #f4faff;
 	--color-bg-2: hsl(224, 44%, 95%);
-	--color-theme-1: #ff3e00;
-	--color-theme-2: #4075a6;
-	--color-text: rgba(0, 0, 0, 0.7);
-	--column-width: 42rem;
-	--column-margin-top: 4rem;
-	font-family: var(--font-body);
-	color: var(--color-text);
+	--color-dark: #191919;
+	--color-white: #d4d4d4;
+
+	--color-text: var(--color-dark);
+	--color-background: var(--color-white);
+
+	--box-size: 290px;
+	--image-size: 160px;
+	--button-margin: 26px;
+
+	color-scheme: light dark; /* both supported */
+}
+
+@media (min-width: 400px) {
+	:root {
+		--box-size: 340px;
+		--image-size: 200px;
+		--button-margin: 45px;
+	}
+}
+
+@media (min-width: 720px) {
+	:root {
+		--box-size: 450px;
+		--image-size: 270px;
+		--button-margin: 80px;
+	}
+}
+
+* {
+	box-sizing: border-box;
 }
 
 body {
 	min-height: 100vh;
 	margin: 0;
 	background-attachment: fixed;
-	background-color: var(--color-bg-1);
 	background-size: 100vw 100vh;
-	background-image: radial-gradient(
-			50% 50% at 50% 50%,
-			rgba(255, 255, 255, 0.75) 0%,
-			rgba(255, 255, 255, 0) 100%
-		),
-		linear-gradient(180deg, var(--color-bg-0) 0%, var(--color-bg-1) 15%, var(--color-bg-2) 50%);
+	background-color: var(--color-background);
+	color: var(--color-text);
+	transition: all 0.5s;
+	font-family: var(--font-body);
+}
+@media (prefers-color-scheme: dark) {
+	body {
+		--color-background: var(--color-dark);
+		--color-text: var(--color-white);
+	}
+	.image-light-mode {
+		display: none;
+	}
+}
+
+@media (prefers-color-scheme: light) {
+	body {
+		--color-background: var(--color-white);
+		--color-text: var(--color-dark);
+	}
+	.image-dark-mode {
+		display: none;
+	}
+}
+
+body.dark-theme {
+	--color-background: var(--color-dark);
+	--color-text: var(--color-white);
+}
+
+body.light-theme {
+	--color-background: var(--color-white);
+	--color-text: var(--color-dark);
+}
+
+.dark-theme .image-light-mode {
+	display: none;
+}
+
+.light-theme .image-dark-mode {
+	display: none;
+}
+
+.dark-theme .image-dark-mode {
+	display: block;
+}
+
+.light-theme .image-light-mode {
+	display: block;
 }
 
 h1,
@@ -41,12 +108,16 @@ p {
 }
 
 a {
-	color: var(--color-theme-1);
+	color: var(--color-text);
 	text-decoration: none;
+	transition: all 0.3s;
 }
 
 a:hover {
 	text-decoration: underline;
+	color: #0070f3;
+	transform: scale(1.2);
+	filter: invert(1);
 }
 
 h1 {
@@ -86,6 +157,26 @@ button {
 
 button:focus:not(:focus-visible) {
 	outline: none;
+}
+
+button {
+	background-color: transparent;
+	color: var(--color-text);
+	border: 1px solid var(--color-text);
+	font-size: 1em;
+	cursor: pointer;
+	padding: 4px 8px;
+	height: 35px;
+	margin-top: 8px;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: all 0.3s;
+}
+
+button:hover {
+	background-color: var(--color-text);
+	color: var(--color-background);
+	border-color: var(--color-background);
 }
 
 @media (min-width: 720px) {
