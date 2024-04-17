@@ -3,6 +3,11 @@
 
 	let loaded = false;
 	let iframe: HTMLIFrameElement;
+	let brightness = 100;
+	let contrast = 100;
+	let saturation = 100;
+	let hue = 0;
+	let inversion = 0;
 
 	const handleUrlChange = (event: any) => {
 		event.preventDefault();
@@ -13,24 +18,33 @@
 		iframe.src = `https://www.hlsplayer.org/play?url=${url}`;
 	};
 
+	const updateFilter = () => {
+		iframe.style.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) hue-rotate(${hue}deg) invert(${inversion})`;
+	};
+
 	const changeBrightness = (event: any) => {
-		const brightness = event.target.value;
-		iframe.style.filter = `brightness(${brightness}%)`;
+		brightness = event.target.value;
+		updateFilter();
 	};
 
 	const changeContrast = (event: any) => {
-		const contrast = event.target.value;
-		iframe.style.filter = `contrast(${contrast}%)`;
+		contrast = event.target.value;
+		updateFilter();
 	};
 
 	const changeSaturation = (event: any) => {
-		const saturation = event.target.value;
-		iframe.style.filter = `saturate(${saturation}%)`;
+		saturation = event.target.value;
+		updateFilter();
 	};
 
 	const changeHue = (event: any) => {
-		const hue = event.target.value;
-		iframe.style.filter = `hue-rotate(${hue}deg)`;
+		hue = event.target.value;
+		updateFilter();
+	};
+
+	const invert = () => {
+		inversion = inversion === 0 ? 1 : 0;
+		updateFilter();
 	};
 
 	onMount(() => {
@@ -71,6 +85,9 @@
 			<div class="input-box">
 				<label for="hue">Hue</label>
 				<input type="range" min="0" max="360" value="0" id="hue" on:change={changeHue} on:input={changeHue} />
+			</div>
+			<div class="input-box">
+				<button on:click={invert}>Invert</button>
 			</div>
 		</div>
 		{#if !loaded}
