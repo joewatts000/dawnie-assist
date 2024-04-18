@@ -64,34 +64,37 @@
 </svelte:head>
 
 <section>
-	<h1>Dawnie Assist</h1>
+	<h1>Dawn, the Dawnie assistant</h1>
+	<h2><i>"Never not know, before you do or dont go"</i> - Dawn</h2>
+	<br />
+	<p>Enter webcam url below and then play around with the filters until you can see what you're about to shred</p>
+	<div class="input-box">
+		<label for="video" aria-hidden="true" class="hidden">Webcam url</label>
+		<input class="url-input" type="text" placeholder="Enter a url" on:change={handleUrlChange} />
+	</div>
+	<div class="inputs">
 		<div class="input-box">
-			<label for="video">Webcam url</label>
-			<input class="url-input" type="text" placeholder="Enter a url" on:change={handleUrlChange} />
+			<label for="brightness">Brightness</label>
+			<input type="range" min="0" max="500" value="100" id="brightness" on:change={changeBrightness} on:input={changeBrightness} />
 		</div>
-		<div class="inputs">
-			<div class="input-box">
-				<label for="brightness">Brightness</label>
-				<input type="range" min="0" max="500" value="100" id="brightness" on:change={changeBrightness} on:input={changeBrightness} />
-			</div>
-			<div class="input-box">
-				<label for="contrast">Contrast</label>
-				<input type="range" min="0" max="500" value="100" id="contrast" on:change={changeContrast} on:input={changeContrast} />
-			</div>
-			<div class="input-box">
-				<label for="saturation">Saturation</label>
-				<input type="range" min="0" max="500" value="100" id="saturation" on:change={changeSaturation} on:input={changeSaturation} />
-			</div>
-			<div class="input-box">
-				<label for="hue">Hue</label>
-				<input type="range" min="0" max="360" value="0" id="hue" on:change={changeHue} on:input={changeHue} />
-			</div>
-			<div class="input-box">
-				<button on:click={invert}>Invert</button>
-			</div>
+		<div class="input-box">
+			<label for="contrast">Contrast</label>
+			<input type="range" min="0" max="500" value="100" id="contrast" on:change={changeContrast} on:input={changeContrast} />
 		</div>
-		{#if !loaded}
-		<div class="loader"></div>
+		<div class="input-box">
+			<label for="saturation">Saturation</label>
+			<input type="range" min="0" max="500" value="100" id="saturation" on:change={changeSaturation} on:input={changeSaturation} />
+		</div>
+		<div class="input-box">
+			<label for="hue">Hue</label>
+			<input type="range" min="0" max="360" value="0" id="hue" on:change={changeHue} on:input={changeHue} />
+		</div>
+		<div class="input-box">
+			<button on:click={invert}>Invert</button>
+		</div>
+	</div>
+	{#if !loaded}
+	<div class="loader"></div>
 	{/if}
 		<iframe id="iframe" src="" frameBorder="0" width="100%" allowFullScreen title=""></iframe>
 </section>
@@ -137,11 +140,6 @@
 		margin-bottom: 1rem;
 	}
 
-	video {
-		display: none;
-		width: 100%;
-	}
-
 	iframe {
 		aspect-ratio: 16 / 9;
 		width: 100%;
@@ -149,9 +147,8 @@
 		display: none;
 	}
 
-	#image {
+	.hidden {
 		display: none;
-		width: 100%;
 	}
 
 	.inputs {
