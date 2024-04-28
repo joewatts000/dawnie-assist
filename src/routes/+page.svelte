@@ -3,11 +3,8 @@
 
 	let loaded = false;
 	let iframe: HTMLIFrameElement;
-	let brightness = 100;
-	let contrast = 100;
-	let saturation = 100;
-	let hue = 0;
-	let inversion = 0;
+	// use a map to store the filters
+	const filtersMap = new Map();
 
 	const handleUrlChange = (event: any) => {
 		event.preventDefault();
@@ -18,33 +15,59 @@
 		iframe.src = `https://www.hlsplayer.org/play?url=${url}`;
 	};
 
-	const updateFilter = () => {
-		iframe.style.filter = `brightness(${brightness}%) contrast(${contrast}%) saturate(${saturation}%) hue-rotate(${hue}deg) invert(${inversion})`;
+	const updateElementFilters = () => {
+		const filters = Array.from(filtersMap.entries()).map(([key, value]) => `${key}(${value})`).join(' ');
+		iframe.style.filter = filters;
 	};
 
 	const changeBrightness = (event: any) => {
-		brightness = event.target.value;
-		updateFilter();
+		const brightness = event.target.value;
+		filtersMap.set('brightness', `${brightness}%`);
+		updateElementFilters();
 	};
 
 	const changeContrast = (event: any) => {
-		contrast = event.target.value;
-		updateFilter();
+		const contrast = event.target.value;
+		filtersMap.set('contrast', `${contrast}%`);
+		updateElementFilters();
 	};
 
 	const changeSaturation = (event: any) => {
-		saturation = event.target.value;
-		updateFilter();
+		const saturation = event.target.value;
+		filtersMap.set('saturate', `${saturation}%`);
+		updateElementFilters();
 	};
 
 	const changeHue = (event: any) => {
-		hue = event.target.value;
-		updateFilter();
+		const hue = event.target.value;
+		filtersMap.set('hue-rotate', `${hue}deg`);
+		updateElementFilters();
 	};
 
-	const invert = () => {
-		inversion = inversion === 0 ? 1 : 0;
-		updateFilter();
+	const changeGrayscale = (event: any) => {
+		const grayscale = event.target.value;
+		filtersMap.set('grayscale', `${grayscale}%`);
+		updateElementFilters();
+	};
+
+	const changeInvert = (event: any) => {
+		const invert = event.target.value;
+		filtersMap.set('invert', `${invert}%`);
+		updateElementFilters();
+	};
+
+	const changeSepia = (event: any) => {
+		const sepia = event.target.value;
+		filtersMap.set('sepia', `${sepia}%`);
+		updateElementFilters();
+	};
+
+	const clearAllFilters = () => {
+		filtersMap.clear();
+		iframe.style.filter = '';
+		document.querySelectorAll('input[type="range"]').forEach((input: any) => {
+			input.value = input.dataset.default;
+		});
 	};
 
 	onMount(() => {
@@ -75,28 +98,38 @@
 	<div class="inputs">
 		<div class="input-box">
 			<label for="brightness">Brightness</label>
-			<input type="range" min="0" max="500" value="100" id="brightness" on:change={changeBrightness} on:input={changeBrightness} />
+			<input type="range" min="0" max="500" value="100" data-default="100" id="brightness" on:change={changeBrightness} on:input={changeBrightness} />
 		</div>
 		<div class="input-box">
 			<label for="contrast">Contrast</label>
-			<input type="range" min="0" max="500" value="100" id="contrast" on:change={changeContrast} on:input={changeContrast} />
+			<input type="range" min="0" max="500" value="100" data-default="100" id="contrast" on:change={changeContrast} on:input={changeContrast} />
 		</div>
 		<div class="input-box">
 			<label for="saturation">Saturation</label>
-			<input type="range" min="0" max="500" value="100" id="saturation" on:change={changeSaturation} on:input={changeSaturation} />
+			<input type="range" min="0" max="500" value="100" data-default="100" id="saturation" on:change={changeSaturation} on:input={changeSaturation} />
 		</div>
 		<div class="input-box">
 			<label for="hue">Hue</label>
-			<input type="range" min="0" max="360" value="0" id="hue" on:change={changeHue} on:input={changeHue} />
+			<input type="range" min="0" max="360" value="0" data-default="0" id="hue" on:change={changeHue} on:input={changeHue} />
 		</div>
 		<div class="input-box">
-			<button on:click={invert}>Invert</button>
+			<label for="grayscale">Grayscale</label>
+			<input type="range" min="0" max="100" value="0" data-default="0" id="grayscale" on:change={changeGrayscale} on:input={changeGrayscale} />
+		</div>
+		<div class="input-box">
+			<label for="invert">Invert</label>
+			<input type="range" min="0" max="100" value="0" data-default="0" id="invert" on:change={changeInvert} on:input={changeInvert} />
+		</div>
+		<div class="input-box">
+			<label for="sepia">Sepia</label>
+			<input type="range" min="0" max="100" value="0" data-default="0" id="sepia" on:change={changeSepia} on:input={changeSepia} />
 		</div>
 	</div>
+	<button class="clear-button" on:click={clearAllFilters}>Reset</button>
 	{#if !loaded}
-	<div class="loader"></div>
+		<div class="loader"></div>
 	{/if}
-		<iframe id="iframe" src="" frameBorder="0" width="100%" allowFullScreen title=""></iframe>
+	<iframe id="iframe" src="" frameBorder="0" width="100%" allowFullScreen title=""></iframe>
 </section>
 
 <style>
@@ -167,6 +200,10 @@
 		align-items: center;
 		justify-content: center;
 		gap: 1rem;
+	}
+
+	.clear-button {
+		margin-bottom: 2rem;
 	}
 
 </style>
