@@ -1,24 +1,58 @@
 <script lang="ts">
 	import { onMount } from "svelte";
+	import Webcam from "./Webcam.svelte";
+
+  const nightMode = {
+    brightness: '200%',
+    contrast: '200%',
+    saturate: '200%',
+    hueRotate: '90deg',
+    grayscale: '100%',
+    invert: '200%',
+    sepia: '200%',
+  };
 
 	let loaded = false;
-	let iframe: HTMLIFrameElement;
+	let webcamBox: HTMLDivElement;
+  let url: string;
 	// use a map to store the filters
 	const filtersMap = new Map();
 
 	const handleUrlChange = (event: any) => {
 		event.preventDefault();
-		const url = event.target.value;
-		loaded = false;
-		iframe.style.opacity = '0';
-		iframe.style.display = 'block';
-		iframe.src = `https://www.hlsplayer.org/play?url=${url}`;
+		url = event.target.value;
+		// loaded = false;
 	};
+
+  const setInputValue = (id: string, value: string) => {
+    const input = document.getElementById(id) as HTMLInputElement;
+    if (!input) return;
+    input.value = value;
+  };
 
 	const updateElementFilters = () => {
 		const filters = Array.from(filtersMap.entries()).map(([key, value]) => `${key}(${value})`).join(' ');
-		iframe.style.filter = filters;
+		webcamBox.style.filter = filters;
 	};
+
+  const applyOptimalSettings = () => {
+    filtersMap.clear();
+    filtersMap.set('brightness', nightMode.brightness);
+    filtersMap.set('contrast', nightMode.contrast);
+    filtersMap.set('saturate', nightMode.saturate);
+    filtersMap.set('hue-rotate', nightMode.hueRotate);
+    filtersMap.set('grayscale', nightMode.grayscale);
+    filtersMap.set('invert', nightMode.invert);
+    filtersMap.set('sepia', nightMode.sepia);
+    // update elements 
+    setInputValue('contrast', nightMode.contrast);
+    setInputValue('saturation', nightMode.saturate);
+    setInputValue('hue', nightMode.hueRotate);
+    setInputValue('grayscale', nightMode.grayscale);
+    setInputValue('invert', nightMode.invert);
+    setInputValue('sepia', nightMode.sepia);
+    updateElementFilters();
+  };  
 
 	const changeBrightness = (event: any) => {
 		const brightness = event.target.value;
@@ -64,7 +98,7 @@
 
 	const clearAllFilters = () => {
 		filtersMap.clear();
-		iframe.style.filter = '';
+		webcamBox.style.filter = '';
 		document.querySelectorAll('input[type="range"]').forEach((input: any) => {
 			input.value = input.dataset.default;
 		});
@@ -72,12 +106,7 @@
 
 	onMount(() => {
 		loaded = true;
-		iframe = document.getElementById('iframe') as HTMLIFrameElement;
-		iframe.onload = () => {
-			console.log('hi');
-			loaded = true;
-			iframe.style.opacity = '1';
-		};
+		webcamBox = document.getElementById('webcamBox') as HTMLDivElement;
 	});
 </script>
 
@@ -90,7 +119,7 @@
 	<h1>Dawn, the Dawnie assistant</h1>
 	<h2><i>"Never not know, before you do or dont go"</i> - Dawn</h2>
 	<br />
-	<p>Enter webcam url below and then play around with the filters until you can see what you're about to shred</p>
+	<p>Enter webcam url below and then play around with the filters until you can see the waves</p>
 	<div class="input-box">
 		<label for="video" aria-hidden="true" class="hidden">Webcam url</label>
 		<input class="url-input" type="text" placeholder="Enter a url" on:change={handleUrlChange} />
@@ -125,11 +154,18 @@
 			<input type="range" min="0" max="100" value="0" data-default="0" id="sepia" on:change={changeSepia} on:input={changeSepia} />
 		</div>
 	</div>
-	<button class="clear-button" on:click={clearAllFilters}>Reset</button>
+  <div class="buttons">
+    <button class="button" on:click={applyOptimalSettings}>Night mode</button>
+    <button class="button" on:click={clearAllFilters}>Reset</button>
+  </div>
 	{#if !loaded}
 		<div class="loader"></div>
 	{/if}
-	<iframe id="iframe" src="" frameBorder="0" width="100%" allowFullScreen title=""></iframe>
+  <div id="webcamBox">
+    {#if url}
+      <Webcam url={url} />
+    {/if}
+  </div>
 </section>
 
 <style>
@@ -173,13 +209,6 @@
 		margin-bottom: 1rem;
 	}
 
-	iframe {
-		aspect-ratio: 16 / 9;
-		width: 100%;
-		max-width: 100%;
-		display: none;
-	}
-
 	.hidden {
 		display: none;
 	}
@@ -201,9 +230,17 @@
 		justify-content: center;
 		gap: 1rem;
 	}
-
-	.clear-button {
+  .buttons {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+	.button {
 		margin-bottom: 2rem;
 	}
+
+  p {
+    text-align: center;
+  }
 
 </style>
