@@ -30,6 +30,7 @@
 
 	const handleUrlChange = (event: any) => {
 		event.preventDefault();
+    url = '';
 		url = event.target.value;
     // set url in local storage
     localStorage.setItem("lastWebcamUrl", url);
@@ -122,7 +123,6 @@
 		webcamBox = document.getElementById('webcamBox') as HTMLDivElement;
     // get last url from local storage
     const lastUrl = localStorage.getItem("lastWebcamUrl");
-    console.log("last url", lastUrl);
     if (lastUrl) {
       url = lastUrl;
       scrollIntoView();
@@ -183,12 +183,12 @@
     <button class="button" on:click={applyOptimalSettings}>Night mode</button>
     <button class="button" on:click={clearAllFilters}>Reset</button>
   </div>
-	{#if !loaded}
+	{#if !loaded && url}
 		<div class="loader"></div>
 	{/if}
   <div id="webcamBox" class="webcamBox">
-    {#if url}
-      <Webcam url={url} setLoaded={setLoaded} />
+    {#if url && url !== ''}
+      <Webcam url={url} setLoaded={setLoaded} loaded={loaded} />
     {/if}
   </div>
   <div id="scrollTarget"></div>

@@ -7,8 +7,11 @@
   // let loaded = false;
   export let url: string;
   export let setLoaded: (loaded: boolean) => void;
+  export let loaded: boolean;
 
-  onMount(() => {
+  console.log(url);
+
+  const handleUrlChange = () => {
     video = document.getElementById('video') as HTMLVideoElement;
     if (!url) return;
     if (Hls.isSupported()) {
@@ -26,10 +29,19 @@
         }
       });
     }
+  };
+
+  onMount(() => {
+    handleUrlChange();
   });
+
+  // when url changes update the video
+  $: if (url) {
+    handleUrlChange();
+  }
 </script>
 
-<section>
+<section class={loaded ? 'loaded' : ''}>
   <video
     playsinline
     muted
@@ -43,6 +55,13 @@
 <style>
   video {
     width: 100%;
+  }
+  section {
+    opacity: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+  .loaded {
+    opacity: 1;
   }
 </style>
 
