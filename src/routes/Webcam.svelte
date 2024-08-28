@@ -6,6 +6,7 @@
   let hls: Hls;
   // let loaded = false;
   export let url: string;
+  export let setLoaded: (loaded: boolean) => void;
 
   onMount(() => {
     video = document.getElementById('video') as HTMLVideoElement;
@@ -15,18 +16,22 @@
       hls.loadSource(url);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
-        // video.play();
+        setLoaded(true);
       });
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = url;
+      video.addEventListener('timeupdate', () => {
+        if (video.currentTime > 0) {
+          setLoaded(true);
+        }
+      });
     }
   });
 </script>
 
 <section>
   <video
-    controls      
-    playsInline
+    playsinline
     muted
     autoPlay
     id="video"
@@ -38,7 +43,6 @@
 <style>
   video {
     width: 100%;
-    padding-bottom: 200px;
   }
 </style>
 

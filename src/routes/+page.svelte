@@ -18,10 +18,24 @@
 	// use a map to store the filters
 	const filtersMap = new Map();
 
+  const setLoaded = (newLoaded: boolean) => {
+    loaded = newLoaded;
+  };
+
+  const scrollIntoView = () => {
+    const scrollTarget = document.querySelector('#scrollTarget'); 
+    if (!scrollTarget) return;
+    scrollTarget.scrollIntoView({behavior: "smooth", block: 'end' });
+  };
+
 	const handleUrlChange = (event: any) => {
 		event.preventDefault();
 		url = event.target.value;
-		// loaded = false;
+    // set url in local storage
+    localStorage.setItem("lastWebcamUrl", url);
+		loaded = false;
+    // scroll the video to the top
+    scrollIntoView();
 	};
 
   const setInputValue = (id: string, value: string) => {
@@ -105,9 +119,20 @@
 	};
 
 	onMount(() => {
-		loaded = true;
 		webcamBox = document.getElementById('webcamBox') as HTMLDivElement;
+    // get last url from local storage
+    const lastUrl = localStorage.getItem("lastWebcamUrl");
+    console.log("last url", lastUrl);
+    if (lastUrl) {
+      url = lastUrl;
+      scrollIntoView();
+    }
 	});
+
+  // when loaded changed, scroll into view
+  $: if (loaded) {
+    scrollIntoView();
+  }
 </script>
 
 <svelte:head>
@@ -161,11 +186,12 @@
 	{#if !loaded}
 		<div class="loader"></div>
 	{/if}
-  <div id="webcamBox">
+  <div id="webcamBox" class="webcamBox">
     {#if url}
-      <Webcam url={url} />
+      <Webcam url={url} setLoaded={setLoaded} />
     {/if}
   </div>
+  <div id="scrollTarget"></div>
 </section>
 
 <style>
@@ -241,6 +267,9 @@
 
   p {
     text-align: center;
+  }
+  .webcamBox {
+    padding-bottom: 200px;
   }
 
 </style>
