@@ -2,7 +2,6 @@
 	import { onMount } from "svelte";
 	import Webcam from "./Webcam.svelte";
 
-  // filter: brightness(1.4) contrast(1.8) saturate(0.6) grayscale(0.8);
 
   const nightMode = {
     brightness: '140%',
@@ -14,16 +13,49 @@
     // sepia: '200%',
   };
 
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 	let loaded = false;
 	let webcamBox: HTMLDivElement;
+  let video: HTMLVideoElement;
   let url: string;
   let filterState: 'original' | 'edited' | 'none' = 'none';
 	// use a map to store the filters
 	const filtersMap = new Map();
-
   const setLoaded = (newLoaded: boolean) => {
     loaded = newLoaded;
   };
+  let autoAdjustInterval: NodeJS.Timeout;
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  function analyzeFrame() {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    video = document.getElementById('video') as HTMLVideoElement;
+    if (!ctx || !video) return;
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const frame = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    
+    // Compute histogram or average pixel brightness (simple example)
+    let totalBrightness = 0;
+    for (let i = 0; i < frame.data.length; i += 4) {
+      const r = frame.data[i];
+      const g = frame.data[i + 1];
+      const b = frame.data[i + 2];
+      const brightness = (r + g + b) / 3;
+      totalBrightness += brightness;
+    }
+    
+    const avgBrightness = totalBrightness / (canvas.width * canvas.height);
+    
+    // Adjust brightness and contrast dynamically based on average brightness
+    const dynamicBrightness = 1.5 - avgBrightness / 255; // Example formula
+    const dynamicContrast = 1.2 + (1 - avgBrightness / 255);
+
+    video.style.filter = `brightness(${dynamicBrightness}) contrast(${dynamicContrast}) blur(1px)`;
+  }
 
   const scrollIntoView = () => {
     const scrollTarget = document.querySelector('#scrollTarget'); 
@@ -114,6 +146,12 @@
 		document.querySelectorAll('input[type="range"]').forEach((input: any) => {
 			input.value = input.dataset.default;
 		});
+    filterState = 'none';
+    video = document.getElementById('video') as HTMLVideoElement;
+    video.style.filter = '';
+    // remove filters from local storage
+    localStorage.removeItem('filters');
+    stopAdjustFilters();
 	};
 
   const applyRecentFilters = () => {
@@ -138,6 +176,17 @@
   const showRecentEdits = () => {
     filterState = 'edited';
     applyRecentFilters();
+  };
+
+  const startAdjustFilters = () => {
+    clearAllFilters();
+    autoAdjustInterval = setInterval(analyzeFrame, 1000);
+  };
+
+  const stopAdjustFilters = () => {
+    clearInterval(autoAdjustInterval);
+    video = document.getElementById('video') as HTMLVideoElement;
+    video.style.filter = '';
   };
 
 	onMount(() => {
@@ -208,6 +257,8 @@
     {:else if filterState === 'edited'}
       <button class="button" on:click={showOriginal}>Show original</button>
     {/if}
+    <button class="button" on:click={startAdjustFilters}>Start auto adjust</button>
+    <button class="button" on:click={stopAdjustFilters}>Stop auto adjust</button>
   </div>
 	{#if !loaded && url}
 		<div class="loader"></div>
@@ -284,17 +335,17 @@
 	}
   .buttons {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
+    align-items: center;
     gap: 1rem;
   }
-	.button {
-		margin-bottom: 2rem;
-	}
 
   p {
     text-align: center;
   }
   .webcamBox {
+    padding-top: 2rem;
     padding-bottom: 200px;
   }
 
