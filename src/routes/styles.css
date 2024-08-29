@@ -166,7 +166,7 @@ button {
 	font-size: 1em;
 	cursor: pointer;
 	padding: 4px 8px;
-	height: 35px;
+	min-height: 45px;
 	margin-top: 8px;
 	border-radius: 5px;
 	cursor: pointer;

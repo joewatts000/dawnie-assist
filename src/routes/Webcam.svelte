@@ -4,12 +4,9 @@
 
   let video: HTMLVideoElement;
   let hls: Hls;
-  // let loaded = false;
   export let url: string;
   export let setLoaded: (loaded: boolean) => void;
   export let loaded: boolean;
-
-  console.log(url);
 
   const handleUrlChange = () => {
     video = document.getElementById('video') as HTMLVideoElement;

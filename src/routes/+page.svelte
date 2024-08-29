@@ -2,19 +2,22 @@
 	import { onMount } from "svelte";
 	import Webcam from "./Webcam.svelte";
 
+  // filter: brightness(1.4) contrast(1.8) saturate(0.6) grayscale(0.8);
+
   const nightMode = {
-    brightness: '200%',
-    contrast: '200%',
-    saturate: '200%',
-    hueRotate: '90deg',
-    grayscale: '100%',
-    invert: '200%',
-    sepia: '200%',
+    brightness: '140%',
+    contrast: '180%',
+    saturate: '60%',
+    // hueRotate: '90deg',
+    grayscale: '80%',
+    // invert: '200%',
+    // sepia: '200%',
   };
 
 	let loaded = false;
 	let webcamBox: HTMLDivElement;
   let url: string;
+  let filterState: 'original' | 'edited' | 'none' = 'none';
 	// use a map to store the filters
 	const filtersMap = new Map();
 
@@ -46,26 +49,20 @@
   };
 
 	const updateElementFilters = () => {
+    filterState = 'edited';
 		const filters = Array.from(filtersMap.entries()).map(([key, value]) => `${key}(${value})`).join(' ');
 		webcamBox.style.filter = filters;
+    // save the filters to local storage
+    localStorage.setItem('filters', JSON.stringify(Array.from(filtersMap.entries())));
 	};
 
   const applyOptimalSettings = () => {
     filtersMap.clear();
-    filtersMap.set('brightness', nightMode.brightness);
-    filtersMap.set('contrast', nightMode.contrast);
-    filtersMap.set('saturate', nightMode.saturate);
-    filtersMap.set('hue-rotate', nightMode.hueRotate);
-    filtersMap.set('grayscale', nightMode.grayscale);
-    filtersMap.set('invert', nightMode.invert);
-    filtersMap.set('sepia', nightMode.sepia);
-    // update elements 
-    setInputValue('contrast', nightMode.contrast);
-    setInputValue('saturation', nightMode.saturate);
-    setInputValue('hue', nightMode.hueRotate);
-    setInputValue('grayscale', nightMode.grayscale);
-    setInputValue('invert', nightMode.invert);
-    setInputValue('sepia', nightMode.sepia);
+    // make nightmode into an array and then set the values
+    Object.entries(nightMode).forEach(([key, value]: [string, string]) => {
+      filtersMap.set(key, value);
+      setInputValue(key, value);
+    });
     updateElementFilters();
   };  
 
@@ -119,6 +116,30 @@
 		});
 	};
 
+  const applyRecentFilters = () => {
+    const filters = JSON.parse(localStorage.getItem('filters') as string);
+    if (!filters) return;
+    filters.forEach(([key, value]: [string, string]) => {
+      filtersMap.set(key, value);
+      setInputValue(key, value.replace('%', ''));
+    });
+    updateElementFilters();
+  };
+
+  const showOriginal = () => {
+    filterState = 'original';
+    filtersMap.clear();
+		webcamBox.style.filter = '';
+		document.querySelectorAll('input[type="range"]').forEach((input: any) => {
+			input.value = input.dataset.default;
+		});
+  };
+
+  const showRecentEdits = () => {
+    filterState = 'edited';
+    applyRecentFilters();
+  };
+
 	onMount(() => {
 		webcamBox = document.getElementById('webcamBox') as HTMLDivElement;
     // get last url from local storage
@@ -142,7 +163,7 @@
 
 <section>
 	<h1>Dawn, the Dawnie assistant</h1>
-	<h2><i>"Never not know, before you do or dont go"</i> - Dawn</h2>
+	<h2 class="text-center"><i>"Never not know, before you do or dont go"</i> <br /><small>Dawn</small></h2>
 	<br />
 	<p>Enter webcam url below and then play around with the filters until you can see the waves</p>
 	<div class="input-box">
@@ -160,11 +181,11 @@
 		</div>
 		<div class="input-box">
 			<label for="saturation">Saturation</label>
-			<input type="range" min="0" max="500" value="100" data-default="100" id="saturation" on:change={changeSaturation} on:input={changeSaturation} />
+			<input type="range" min="0" max="500" value="100" data-default="100" id="saturate" on:change={changeSaturation} on:input={changeSaturation} />
 		</div>
 		<div class="input-box">
 			<label for="hue">Hue</label>
-			<input type="range" min="0" max="360" value="0" data-default="0" id="hue" on:change={changeHue} on:input={changeHue} />
+			<input type="range" min="0" max="360" value="0" data-default="0" id="hue-rotate" on:change={changeHue} on:input={changeHue} />
 		</div>
 		<div class="input-box">
 			<label for="grayscale">Grayscale</label>
@@ -180,8 +201,13 @@
 		</div>
 	</div>
   <div class="buttons">
-    <button class="button" on:click={applyOptimalSettings}>Night mode</button>
-    <button class="button" on:click={clearAllFilters}>Reset</button>
+    <button class="button" on:click={applyOptimalSettings}>Night mode preset</button>
+    <button class="button" on:click={clearAllFilters}>Clear filters</button>
+    {#if filterState === 'original'}
+      <button class="button" on:click={showRecentEdits}>Show edits</button>
+    {:else if filterState === 'edited'}
+      <button class="button" on:click={showOriginal}>Show original</button>
+    {/if}
   </div>
 	{#if !loaded && url}
 		<div class="loader"></div>
@@ -270,6 +296,14 @@
   }
   .webcamBox {
     padding-bottom: 200px;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+  small {
+    margin-top: 0.5rem;
+    display: block;
   }
 
 </style>
