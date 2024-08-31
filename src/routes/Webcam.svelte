@@ -12,14 +12,17 @@
     video = document.getElementById('video') as HTMLVideoElement;
     if (!url) return;
     if (Hls.isSupported()) {
+      console.log('hls is supported');
       hls = new Hls();
       hls.loadSource(url);
       hls.attachMedia(video);
       hls.on(Hls.Events.MANIFEST_PARSED, () => {
         setLoaded(true);
       });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+    } else if (video?.canPlayType('application/vnd.apple.mpegurl')) {
+      console.log('apple hls');
       video.src = url;
+      setLoaded(true);
       video.addEventListener('timeupdate', () => {
         if (video.currentTime > 0) {
           setLoaded(true);
