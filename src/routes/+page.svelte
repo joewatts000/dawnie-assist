@@ -54,7 +54,7 @@
     const dynamicBrightness = 1.5 - avgBrightness / 255; // Example formula
     const dynamicContrast = 1.2 + (1 - avgBrightness / 255);
 
-    video.style.filter = `brightness(${dynamicBrightness}) contrast(${dynamicContrast}) blur(1px)`;
+    video.style.filter = `brightness(${dynamicBrightness}) contrast(${dynamicContrast})`;
   }
 
   const scrollIntoView = () => {
