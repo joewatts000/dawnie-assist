@@ -250,8 +250,10 @@
 		</div>
 	</div>
   <div class="buttons">
-    <button class="button" on:click={applyOptimalSettings}>Night mode preset</button>
-    <button class="button" on:click={clearAllFilters}>Clear filters</button>
+    <!-- <button class="button" on:click={applyOptimalSettings}>Night mode preset</button> -->
+    {#if filterState !== 'none'}
+      <button class="button" on:click={clearAllFilters}>Clear filters</button>
+    {/if}
     {#if filterState === 'original'}
       <button class="button" on:click={showRecentEdits}>Show edits</button>
     {:else if filterState === 'edited'}
